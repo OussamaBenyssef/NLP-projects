@@ -1,0 +1,60 @@
+# Configuration for Darija + Code-switching Detection
+
+project:
+  seed: 42
+  log_level: "INFO"
+
+paths:
+  data:
+    raw: "data/raw"
+    nadi: "data/raw/nadi2022"
+    atlaset: "data/raw/atlaset.parquet"
+    fr_en: "data/raw/langid_fr_en.parquet"
+    processed: "data/processed/all_texts.parquet"
+    train_split: "data/splits/train.parquet"
+    valid_split: "data/splits/valid.parquet"
+    test_split: "data/splits/test.parquet"
+    train_silver: "data/silver/train_silver.parquet"
+    valid_silver: "data/silver/valid_silver.parquet"
+    to_label: "data/annotation/to_label.csv"
+    labeled: "data/annotation/labeled.csv"
+    test_gold: "data/gold/test_gold.parquet"
+  models:
+    baseline_svm: "models/baseline_svm.pkl"
+    baseline_vectorizer: "models/baseline_vectorizer.pkl"
+    transformer: "models/transformer"
+    dar_msa_classifier: "models/dar_msa_classifier.pkl"
+
+data:
+  splits:
+    train: 0.70
+    valid: 0.15
+    test: 0.15
+  validation_samples: 500
+  test_gold_samples: 500
+
+preprocessing:
+  lowercase_latin: true
+  remove_urls: true
+  remove_mentions: true
+  remove_hashtags: false
+  normalize_arabic: true
+  normalize_arabizi: true
+  keep_emojis: true
+
+auto_annotation:
+  cs_ratio_threshold: 0.30
+  latin_min_tokens_for_langid: 3
+  silver_confidence_filter: 0.60
+  mix_min_tokens_per_script: 2
+
+training:
+  svm:
+    max_features: 10000
+    ngram_range: [1, 3]
+    C: 1.0
+  transformer:
+    model_name: "xlm-roberta-base"
+    epochs: 3
+    batch_size: 16
+    learning_rate: 2.0e-5

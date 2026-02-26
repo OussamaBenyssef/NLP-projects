@@ -1,0 +1,13 @@
+# Données volumineuses
+data/raw/
+data/processed/
+data/splits/
+data/silver/
+data/gold/
+# Checkpoints intermédiaires (pas le best/)
+models/transformer/checkpoint-*/
+# Système
+.DS_Store
+__pycache__/
+*.pyc
+pipeline.log

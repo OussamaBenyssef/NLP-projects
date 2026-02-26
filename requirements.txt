@@ -1,0 +1,13 @@
+datasets
+pandas
+numpy
+scikit-learn
+transformers
+accelerate
+evaluate
+matplotlib
+pyyaml
+fasttext-langdetect
+regex
+tqdm
+joblib
