@@ -40,13 +40,39 @@ darija_cs_detection/
 
 ## Installation
 
+### Étape 1 — Dépendances Python
+
 ```bash
 pip install -r requirements.txt
 ```
 
+### Étape 2 — Installer le serveur de génération
+
+Le module de génération de réponses utilise **Qwen3.5-397B-A17B** (modèle MoE, ~17B paramètres actifs), servi localement via `transformers serve`.
+
+```bash
+# Installer les dépendances de serving (une seule fois)
+pip install "transformers[serving]"
+```
+
+### Étape 3 — Télécharger le modèle (optionnel mais recommandé)
+
+Le modèle (~70 Go) est téléchargé automatiquement au premier lancement du serveur.  
+Pour le pré-télécharger et éviter l'attente au démarrage :
+
+```bash
+# Se connecter à HuggingFace (si le modèle est gated)
+huggingface-cli login
+
+# Pré-télécharger le modèle
+huggingface-cli download Qwen/Qwen3.5-397B-A17B
+```
+
+> **Stockage :** Le modèle est mis en cache dans `~/.cache/huggingface/hub/`.
+
 ## Utilisation
 
-### 1. Lancer le serveur de génération (Qwen3.5)
+### 1. Lancer le serveur Qwen3.5 (dans un premier terminal)
 
 ```bash
 transformers serve \
@@ -55,13 +81,22 @@ transformers serve \
     --continuous-batching
 ```
 
-> Au premier lancement, le modèle (~70 Go) est téléchargé automatiquement depuis HuggingFace.
+Attendez que le serveur affiche qu'il est prêt (ex: `Uvicorn running on http://0.0.0.0:8000`).
 
-### 2. Lancer l'application Flask
+**Vérifier que le serveur fonctionne :**
+```bash
+curl http://localhost:8000/v1/models
+```
+
+> **Configuration avancée :** L'URL du serveur est configurable via la variable d'environnement `QWEN_BASE_URL` (défaut : `http://localhost:8000/v1`).
+
+### 2. Lancer l'application Flask (dans un second terminal)
 
 ```bash
 python app.py
 ```
+
+> ⚠️ L'application **refuse de démarrer** si le serveur Qwen3.5 n'est pas accessible.
 
 L'interface est accessible sur **http://localhost:5001**.
 
