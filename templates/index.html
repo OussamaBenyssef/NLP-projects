@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Multilingue — Darija CS Detection</title>
+    <meta name="description"
+        content="Chat multilingue avec détection automatique de langue et génération de réponse via Qwen2.5">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- ═══ Header ═══ -->
+        <header class="app-header">
+            <div class="header-left">
+                <h1>
+                    <svg class="icon-header" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    Chat Multilingue
+                </h1>
+                <span class="header-subtitle">AR · FR · EN · Darija</span>
+            </div>
+            <div class="header-right">
+                <button id="toggle-details" class="toggle-btn" title="Afficher/masquer les détails">
+                    <svg class="icon-toggle" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                        <line x1="15" y1="3" x2="15" y2="21" />
+                    </svg>
+                    <span class="toggle-text">Détails</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- ═══ Main Layout ═══ -->
+        <div class="main-layout">
+            <!-- ─── Chat Panel ─── -->
+            <section class="chat-panel">
+                <div class="messages-container" id="messages">
+                    <div class="welcome-message">
+                        <div class="welcome-icon">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="2" y1="12" x2="22" y2="12" />
+                                <path
+                                    d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                            </svg>
+                        </div>
+                        <h2>Bienvenue / Welcome / مرحبا</h2>
+                        <p>Écrivez dans n'importe quelle langue — la réponse sera dans la même langue.</p>
+                    </div>
+                </div>
+
+                <form class="input-area" id="chat-form">
+                    <div class="input-wrapper">
+                        <textarea id="user-input" placeholder="Écrivez un message..." rows="1" maxlength="2000"
+                            autocomplete="off"></textarea>
+                        <button type="submit" id="send-btn" title="Envoyer">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M22 2L11 13"></path>
+                                <path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- ─── Details Panel ─── -->
+            <aside class="details-panel" id="details-panel">
+                <div class="details-header">
+                    <h3>
+                        <svg class="icon-details" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10" />
+                            <line x1="12" y1="20" x2="12" y2="4" />
+                            <line x1="6" y1="20" x2="6" y2="14" />
+                        </svg>
+                        Détails Techniques
+                    </h3>
+                </div>
+
+                <div class="details-content" id="details-content">
+                    <div class="details-empty">
+                        <span>Envoyez un message pour voir les détails</span>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+
+</html>

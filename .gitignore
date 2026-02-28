@@ -1,13 +1,60 @@
-# Données volumineuses
-data/raw/
-data/processed/
-data/splits/
-data/silver/
-data/gold/
-# Checkpoints intermédiaires (pas le best/)
-models/transformer/checkpoint-*/
-# Système
-.DS_Store
+# ── Python ──
 __pycache__/
 *.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+venv/
+.venv/
+env/
+
+# ── Data (volumineux) ──
+data/raw/
+data/final/
+data/cleaned_4cls/
+# On garde uniquement data/gold/test_gold.parquet (296 Ko)
+
+# ── Modèles (volumineux) ──
+models/svm_final_v2.pkl
+models/transformer_final_v2/model.safetensors
+models/transformer_final_v2/tokenizer.json
+models/transformer_final_v2/training_args.bin
+# On garde config.json + tokenizer_config.json (métadonnées légères)
+
+# ── LaTeX build ──
+*.aux
+*.log
+*.nav
+*.out
+*.snm
+*.toc
+*.vrb
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.bbl
+*.blg
+*.pdf
+
+# ── Jupyter ──
+.ipynb_checkpoints/
+
+# ── OS ──
+.DS_Store
+Thumbs.db
+
+# ── IDE ──
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ── Logs ──
 pipeline.log
+*.log
+
+# ── Misc ──
+kaggle/

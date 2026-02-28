@@ -1,13 +1,46 @@
+# ============================================================
+# Requirements — Détection de Langue & Génération Multilingue
+# ============================================================
+# Python >= 3.10
+
+# ── Framework web ──
+flask>=3.0
+
+# ── Machine Learning & NLP ──
+torch>=2.0
+transformers>=4.51
+scikit-learn>=1.3
+accelerate>=0.25
+
+# ── Génération : Qwen3.5-397B-A17B (servi localement) ──
+openai>=1.0
+
+# ── Prétraitement & utilitaires ──
+emoji>=2.0
+pyyaml>=6.0
+regex
+
+# ── Data ──
 datasets
-pandas
+pandas>=2.0
+pyarrow>=14.0
 numpy
-scikit-learn
-transformers
-accelerate
+
+# ── Entraînement & évaluation ──
 evaluate
 matplotlib
-pyyaml
-fasttext-langdetect
-regex
 tqdm
 joblib
+fasttext-langdetect
+
+# ============================================================
+# Qwen3.5-397B-A17B — Lancer le serveur de génération :
+#
+#   transformers serve \
+#       --force-model Qwen/Qwen3.5-397B-A17B \
+#       --port 8000 \
+#       --continuous-batching
+#
+# Au premier lancement, le modèle (~70 Go) est téléchargé
+# automatiquement depuis HuggingFace dans ~/.cache/huggingface/
+# ============================================================

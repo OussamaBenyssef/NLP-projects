@@ -1,59 +1,105 @@
-# Détection Darija + Code-switching (Darija/FR/EN/MSA)
+# Détection Darija + Code-Switching (Darija / FR / EN / MSA)
 
-Pipeline complet et reproductible pour la détection du Darija et du Code-Switching (langues cibles : AR_MSA, AR_DAR, FR, EN, MIX). 
+Pipeline complet et reproductible pour la détection du Darija marocain et du Code-Switching multilingue.  
+**Classes cibles** : `AR_MSA`, `AR_DAR`, `FR`, `EN`, `MIX`.
 
 ## Structure du Projet
 
-- `data/` : Contient les données brutes, nettoyées, les splits, annotations silver et gold.
-  - `raw/nadi2022/` : (À remplir par l'utilisateur avec le dataset NADI 2022).
-- `models/` : Modèles entraînés (Baseline, Transformer).
-- `src/` : Code utilitaire et normalisation du texte.
-- `scripts/` : Scripts d'exécution de la pipeline.
-- `docs/` : Rapports et analyses.
+```
+darija_cs_detection/
+├── app.py                  # Serveur Flask (chat multilingue + panneau technique)
+├── config.yaml             # Paramètres globaux du projet
+├── requirements.txt        # Dépendances Python
+├── pipeline.ipynb          # Notebook complet de la pipeline NLP
+│
+├── services/               # Services métier
+│   ├── detector_service.py #   Détection langue (Transformer fine-tuné)
+│   └── generator_service.py#   Génération via Qwen3.5 (API locale)
+│
+├── src/                    # Code utilitaire
+│   ├── normalizer.py       #   Normalisation texte (arabe, arabizi, emojis)
+│   ├── post_processing.py  #   Post-traitement des prédictions
+│   └── utils.py            #   Fonctions utilitaires
+│
+├── scripts/
+│   └── rebalance_perclass.py  # Rééquilibrage des classes
+│
+├── data/
+│   └── gold/test_gold.parquet  # Jeu de test annoté manuellement (296 Ko)
+│
+├── models/
+│   └── transformer_final_v2/
+│       ├── config.json          # Architecture du modèle (métadonnées)
+│       └── tokenizer_config.json# Configuration du tokenizer
+│
+├── templates/index.html    # Interface web du chat
+└── static/                 # Assets frontend (CSS + JS)
+```
+
+> **Note :** Les fichiers volumineux (modèles `.safetensors`, `.pkl`, données brutes) sont exclus via `.gitignore`.
 
 ## Installation
 
-1. Installer les dépendances :
 ```bash
 pip install -r requirements.txt
 ```
 
-> **Note relative à HuggingFace :** Le dataset `atlasia/Atlaset` est limité en accès (gated). Veuillez vous authentifier via `huggingface-cli login` ou définir la variable d'environnement `HF_TOKEN` avant de lancer le script de téléchargement, et valider l'accès au dataset sur sa page web.
+## Utilisation
 
-2. Configurer le projet en modifiant `config.yaml` si nécessaire.
-
-3. Fournir le dataset NADI 2022 :
-Placer un fichier `nadi_texts.csv` (colonnes: `id,text,label`) dans le sous-dossier `data/raw/nadi2022/`. Si vous ne l'avez pas ou si vous n'avez que les IDs Twitter, le script 01 fournira des instructions.
-
-## Pipeline d'Exécution
+### 1. Lancer le serveur de génération (Qwen3.5)
 
 ```bash
-# Etape 1 : Téléchargement datasets
-python scripts/01_download_datasets.py
-
-# Etape 2 : Chargement et Nettoyage
-python scripts/02_load_and_clean.py
-
-# Etape 3 : Séparation (Train/Valid/Test)
-python scripts/03_split_data.py
-
-# Etape 4 : Auto-annotation (Silver Labels)
-python scripts/04_auto_label_silver.py
-
-# Etape 5 : Pack de Validation Manuelle
-python scripts/05_manual_validation_pack.py
-# -> /!\ Annoter 'data/annotation/to_label.csv' et sauvegarder sous 'data/annotation/labeled.csv'
-
-# Etape 6 : Entraînement Baseline SVM
-python scripts/06_train_baseline_svm.py
-
-# Etape 7 : Entraînement Transformer
-python scripts/07_train_transformer.py
-
-# Etape 8 : Evaluation
-python scripts/08_evaluate.py
+transformers serve \
+    --force-model Qwen/Qwen3.5-397B-A17B \
+    --port 8000 \
+    --continuous-batching
 ```
 
-## Tâches en attente (TODO)
-- **NADI 2022 (TODO)** : Si le dataset est fourni sous forme d'IDs Twitter, vous devrez écrire/utiliser un script d'hydratation (rehydrate) pour les récupérer via l'API Twitter.
-- **Annotation Humaine (TODO)** : Lors de l'étape 5, le fichier `to_label.csv` est généré. Vous devez annoter manuellement les lignes et l'enregistrer sous `labeled.csv` avant d'entraîner/évaluer les modèles.
+> Au premier lancement, le modèle (~70 Go) est téléchargé automatiquement depuis HuggingFace.
+
+### 2. Lancer l'application Flask
+
+```bash
+python app.py
+```
+
+L'interface est accessible sur **http://localhost:5001**.
+
+### API
+
+| Endpoint       | Méthode | Description                          |
+|----------------|---------|--------------------------------------|
+| `/`            | GET     | Interface chat                       |
+| `/api/chat`    | POST    | Détection + Génération → JSON        |
+
+**Exemple :**
+```bash
+curl -X POST http://localhost:5001/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Salam, kifach ndir had l-exercice?"}'
+```
+
+## Pipeline NLP
+
+Le notebook `pipeline.ipynb` documente la pipeline complète :
+
+1. **Collecte** — Téléchargement des datasets (Atlaset, NADI 2022, LangID FR/EN)
+2. **Nettoyage** — Normalisation du texte (arabe, arabizi, URL, mentions)
+3. **Séparation** — Train / Valid / Test (70/15/15)
+4. **Auto-annotation** — Silver labels via heuristiques linguistiques
+5. **Validation** — Annotation manuelle d'un sous-ensemble (Gold)
+6. **Baseline SVM** — Classification TF-IDF + SVM linéaire
+7. **Transformer** — Fine-tuning XLM-RoBERTa-base
+8. **Évaluation** — Métriques, matrices de confusion, analyse d'erreurs
+
+## Modèles
+
+| Modèle               | Rôle              | F1-macro |
+|-----------------------|-------------------|----------|
+| SVM (TF-IDF)          | Baseline           | ~0.78    |
+| XLM-RoBERTa (fine-tuné) | Détecteur final  | ~0.91    |
+| Qwen3.5-397B-A17B     | Génération réponse | —        |
+
+## Auteurs
+
+Projet académique — Master NLP.
